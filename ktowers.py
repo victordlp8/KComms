@@ -26,9 +26,12 @@ class KTeam(Team):
     async def update(self):
         self.data = await Team.list(self.K, self.name)
 
-        self.points = int(
-            (await Entity.scoreboard(self.K, self.name))[self.name]["scores"]["Points"]
-        )
+        try:
+            self.points = int(
+                (await Entity.scoreboard(self.K, self.name))[self.name]["scores"]["Points"]
+            )
+        except KeyError:
+            self.points = 0
 
         self.players: list[KPlayer] = []  # type: ignore
         for player in self.data[self.name]["teammates"]:
