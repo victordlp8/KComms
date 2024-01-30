@@ -1,0 +1,5 @@
+[KTOWERS]
+teams = ["Blue", "Red"]
+assets_path = "ktowers/assets"
+obs_path = "ktowers/obs"
+step_time = 0.1

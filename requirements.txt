@@ -1,0 +1,4 @@
+asyncio
+toml
+aio-mc-rcon
+pillow
