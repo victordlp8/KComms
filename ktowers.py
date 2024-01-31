@@ -29,7 +29,9 @@ class KTeam(Team):
 
         try:
             self.points = int(
-                (await Entity.scoreboard(self.K, self.name))[self.name]["scores"]["Points"]
+                (await Entity.scoreboard(self.K, self.name))[self.name]["scores"][
+                    "Points"
+                ]
             )
         except KeyError:
             self.points = 0
@@ -193,7 +195,7 @@ class KPlayer(Entity):
 
         if not os.path.exists(os.path.dirname(save_path)):
             os.makedirs(os.path.dirname(save_path))
-            
+
         with open(save_path, "w") as f:
             f.write(f"{self.points}/{self.kills}/{self.deaths}")
 
@@ -215,9 +217,23 @@ class KTowers:
     def purge_obs_files(save_path: str):
         try:
             shutil.rmtree(save_path)
-            print(f"The folder {save_path} and all its contents have been deleted succesfully.")
+            print(
+                f"The folder {save_path} and all its contents have been deleted succesfully."
+            )
         except OSError:
             pass
+
+    @staticmethod
+    def create_obs_scripts(save_path: str, script_path: str):
+        with open(script_path, "r") as script:
+            for main_folder, folders, files in os.walk(save_path):
+                for file in files:
+                    file_name = os.path.splitext(os.path.basename(file))[0]
+                    new_script_path = os.path.join(
+                        main_folder, f"{file_name}_force_update.py"
+                    )
+                    with open(new_script_path, "w") as f:
+                        f.write(script.read())
 
     @property
     def spectating(self):
@@ -268,12 +284,19 @@ async def main():
     ktowers = KTowers(K, CONFIG["teams"])
 
     print("Updating KTowers information...")
+
+    i = 0
     while True:
         await ktowers.update()
 
         ktowers.save_all(CONFIG["assets_path"], CONFIG["obs_path"])
 
+        if i == 0:
+            KTowers.create_obs_scripts(CONFIG["obs_path"], CONFIG["script_path"])
+
         time.sleep(CONFIG["step_time"])
+
+        i += 1
 
 
 if __name__ == "__main__":

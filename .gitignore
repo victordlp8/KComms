@@ -154,5 +154,7 @@ cython_debug/
 # Custom
 ktowers/obs/*/*/*
 ktowers/obs/*/*.points
+ktowers/obs/*/*.py
 *.zip
 ktowers/obs/*.txt
+ktowers/obs/*.py
