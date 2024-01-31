@@ -1,4 +1,5 @@
 import asyncio
+import shutil
 import os
 import time
 
@@ -182,10 +183,17 @@ class KPlayer(Entity):
             health_image = health_image.transpose(Image.FLIP_LEFT_RIGHT)
 
         save_path = os.path.join(save_path, self.team, "health", f"{self.name}.png")
+
+        if not os.path.exists(os.path.dirname(save_path)):
+            os.makedirs(os.path.dirname(save_path))
         health_image.save(save_path)
 
     def save_pam(self, save_path: str):
         save_path = os.path.join(save_path, self.team, "pam", f"{self.name}.pam")
+
+        if not os.path.exists(os.path.dirname(save_path)):
+            os.makedirs(os.path.dirname(save_path))
+            
         with open(save_path, "w") as f:
             f.write(f"{self.points}/{self.kills}/{self.deaths}")
 
@@ -202,6 +210,14 @@ class KTowers:
             await team.update()
 
             self.teams.append(team)
+
+    @staticmethod
+    def purge_obs_files(save_path: str):
+        try:
+            shutil.rmtree(save_path)
+            print(f"The folder {save_path} and all its contents have been deleted succesfully.")
+        except OSError:
+            pass
 
     @property
     def spectating(self):
@@ -248,6 +264,7 @@ async def main():
     config_path = os.path.join("config", "config.toml")
     CONFIG = KComms.load_config(config_path)["KTOWERS"]
 
+    KTowers.purge_obs_files(CONFIG["obs_path"])
     ktowers = KTowers(K, CONFIG["teams"])
 
     print("Updating KTowers information...")
